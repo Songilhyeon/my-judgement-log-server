@@ -123,6 +123,7 @@ export const fileDecisionRepo: DecisionRepo = {
     userId,
     result,
     confidence,
+    meta,
   }: UpdateDecisionResultInput) {
     const all = await readAll();
     const idx = all.findIndex((d) => d.id === id && d.userId === userId);
@@ -138,6 +139,7 @@ export const fileDecisionRepo: DecisionRepo = {
           ? confidence
           : prev.confidence,
       resolvedAt: result === "pending" ? undefined : new Date().toISOString(),
+      meta: meta === null ? undefined : meta ?? prev.meta,
     };
 
     all[idx] = next;

@@ -13,6 +13,7 @@ export type UpdateDecisionResultInput = {
   userId: string; // ✅ 추가
   result: DecisionResult; // pending 포함
   confidence?: number;
+  meta?: Decision["meta"] | null;
 };
 
 // ✅ 상세 수정용(결과는 여기서 안 바꾸는 걸 권장)

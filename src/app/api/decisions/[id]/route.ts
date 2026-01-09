@@ -43,6 +43,7 @@ type PatchBody =
   | {
       result: DecisionResult; // pending 포함
       confidence?: number;
+      meta?: Decision["meta"] | null;
     }
   | {
       categoryId?: string;
@@ -57,6 +58,34 @@ function isValidResult(r: unknown): r is DecisionResult {
   return (
     r === "pending" || r === "positive" || r === "negative" || r === "neutral"
   );
+}
+
+function calcReturnRate(
+  entryPrice: unknown,
+  exitPrice: unknown,
+  action: unknown
+) {
+  if (typeof entryPrice !== "number" || typeof exitPrice !== "number") {
+    return undefined;
+  }
+  if (!Number.isFinite(entryPrice) || !Number.isFinite(exitPrice)) {
+    return undefined;
+  }
+  if (entryPrice <= 0) return undefined;
+  const isSell = action === "sell";
+  const raw = isSell
+    ? (entryPrice - exitPrice) / entryPrice
+    : (exitPrice - entryPrice) / entryPrice;
+  return Math.round(raw * 1000) / 10;
+}
+
+function mergeMeta(
+  prev: Decision["meta"] | undefined,
+  next: Decision["meta"] | null | undefined
+) {
+  if (next === null) return undefined;
+  if (!next) return prev;
+  return { ...(prev ?? {}), ...next };
 }
 
 export async function PATCH(
@@ -96,11 +125,36 @@ export async function PATCH(
       );
     }
 
+    const prev = await decisionRepo.getById({ userId, id });
+    if (!prev) {
+      return NextResponse.json(
+        { error: "Not found" },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+
+    let metaPayload: Decision["meta"] | null | undefined;
+    if ("meta" in body) {
+      if (body.meta === null) {
+        metaPayload = null;
+      } else if (body.meta !== undefined) {
+        const merged = mergeMeta(prev.meta, body.meta);
+        const rate = calcReturnRate(
+          merged?.entryPrice,
+          merged?.exitPrice,
+          merged?.action
+        );
+        metaPayload =
+          rate !== undefined ? { ...(merged ?? {}), returnRate: rate } : merged;
+      }
+    }
+
     const updated = await decisionRepo.updateResult({
       userId,
       id,
       result: body.result,
       confidence: body.confidence,
+      meta: metaPayload,
     });
 
     if (!updated) {
@@ -115,6 +169,30 @@ export async function PATCH(
   }
 
   // ✅ 모드2: 상세 수정
+  const prev = await decisionRepo.getById({ userId, id });
+  if (!prev) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404, headers: corsHeaders }
+    );
+  }
+
+  let metaPayload: Decision["meta"] | null | undefined;
+  if ("meta" in body) {
+    if (body.meta === null) {
+      metaPayload = null;
+    } else if (body.meta !== undefined) {
+      const merged = mergeMeta(prev.meta, body.meta);
+      const rate = calcReturnRate(
+        merged?.entryPrice,
+        merged?.exitPrice,
+        merged?.action
+      );
+      metaPayload =
+        rate !== undefined ? { ...(merged ?? {}), returnRate: rate } : merged;
+    }
+  }
+
   const updated = await decisionRepo.update({
     userId,
     id,
@@ -123,7 +201,7 @@ export async function PATCH(
     notes: body.notes,
     tags: body.tags,
     confidence: body.confidence,
-    meta: body.meta,
+    meta: metaPayload,
   });
 
   if (!updated) {

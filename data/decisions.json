@@ -1,143 +1,60 @@
 [
   {
-    "id": "5c50ec33-f48a-4b36-8bb9-e0a6b5ab92bf",
-    "createdAt": "2026-01-08T07:28:12.466Z",
+    "id": "1241b72c-f8d4-4c19-be74-5a7d02be2b81",
+    "createdAt": "2026-01-09T05:34:13.248Z",
     "userId": "lordangel82",
-    "categoryId": "study",
-    "title": "첨단 도서관 일찍 오자",
-    "notes": "늦게 오면 자리 없을 수도 있음",
+    "categoryId": "shopping",
+    "title": "냉풍기",
+    "notes": "블로그보고 구매",
     "tags": [
-      "12시전"
+      "광고"
     ],
-    "confidence": 3,
-    "result": "neutral",
-    "resolvedAt": "2026-01-08T07:28:55.229Z",
+    "confidence": 5,
+    "result": "negative",
+    "resolvedAt": "2026-01-09T05:34:24.692Z",
     "meta": {
-      "reflection": "점심시간 끝나기 전에 와야 됨"
+      "reflection": "광고 믿지말자"
     }
   },
   {
-    "id": "cb558386-b8e7-4190-99d0-de8156faab9f",
-    "createdAt": "2026-01-08T07:28:05.063Z",
-    "userId": "lordangel82",
-    "categoryId": "study",
-    "title": "첨단 도서관 일찍 오자",
-    "notes": "늦게 오면 자리 없을 수도 있음",
-    "tags": [
-      "12시전"
-    ],
-    "confidence": 2,
-    "result": "positive",
-    "resolvedAt": "2026-01-08T07:45:49.801Z",
-    "meta": {
-      "reflection": ""
-    }
-  },
-  {
-    "id": "187e3ffd-fcfa-454f-bc0d-dfa6de656b99",
-    "createdAt": "2026-01-08T07:24:56.566Z",
-    "userId": "lordangel82",
-    "categoryId": "study",
-    "title": "첨단 도서관 일찍 오자",
-    "notes": "늦게 오면 자리 없을 수도 있음",
-    "tags": [
-      "12시전"
-    ],
-    "confidence": 3,
-    "result": "positive",
-    "resolvedAt": "2026-01-08T07:45:33.291Z"
-  },
-  {
-    "id": "418bfcd6-8c22-4e84-92b5-2890cc61c429",
-    "createdAt": "2026-01-07T01:04:35.583Z",
+    "id": "1b1e5256-ca9d-4839-95f8-69b7ec1b8f6b",
+    "createdAt": "2026-01-09T05:26:03.380Z",
     "userId": "lordangel82",
     "categoryId": "health",
-    "title": "술",
-    "notes": "술",
+    "title": "12시 전에 잠을 자야 한다",
+    "notes": "어제 늦게 잤는데 오늘 너무 피곤하다",
     "tags": [
-      "약속"
+      "습관"
     ],
-    "confidence": 3,
+    "confidence": 5,
     "result": "neutral",
-    "resolvedAt": "2026-01-08T07:21:47.154Z",
+    "resolvedAt": "2026-01-09T05:26:59.891Z",
     "meta": {
-      "reflection": "약속을 일찍 잡자"
+      "reflection": "근거있다"
     }
   },
   {
-    "id": "cfdb1e71-73b6-4b55-9562-2a323c206ad2",
+    "id": "4d25418d-3d74-4b4d-bc34-05e3e349cd4c",
+    "createdAt": "2026-01-09T04:51:44.752Z",
     "userId": "lordangel82",
-    "createdAt": "2026-01-06T03:55:04.229Z",
     "categoryId": "invest",
-    "title": "엘지",
-    "notes": "뉴스",
+    "title": "엘지전자 매수",
+    "notes": "상승장이어서",
     "tags": [
       "실적",
       "뉴스"
     ],
-    "confidence": 3,
+    "confidence": 4,
     "result": "positive",
     "meta": {
-      "symbol": "엘지",
+      "symbol": "엘지전자",
       "action": "buy",
-      "reflection": "다신 안사"
+      "marketCondition": "bull",
+      "entryPrice": 76000,
+      "exitPrice": 80000,
+      "returnRate": 5.3,
+      "reflection": "좋은승부였다2"
     },
-    "resolvedAt": "2026-01-06T06:40:57.262Z"
-  },
-  {
-    "id": "ecec7042-3a64-452b-8460-36584dd767c6",
-    "userId": "lordangel82",
-    "createdAt": "2026-01-05T08:14:00.830Z",
-    "categoryId": "health",
-    "title": "담배 줄이기",
-    "notes": "아침에 담배",
-    "tags": [
-      "1시간뒤"
-    ],
-    "confidence": 3,
-    "result": "negative",
-    "resolvedAt": "2026-01-06T05:40:39.367Z",
-    "meta": {
-      "reflection": "근거 없음"
-    }
-  },
-  {
-    "id": "e6ba0780-68d7-4b2d-897f-6fbad7fb7fc1",
-    "userId": "lordangel82",
-    "createdAt": "2026-01-02T06:45:08.413Z",
-    "categoryId": "invest",
-    "title": "삼성",
-    "notes": "뉴스",
-    "tags": [
-      "뉴스"
-    ],
-    "confidence": 3,
-    "result": "negative",
-    "meta": {
-      "symbol": "삼성",
-      "action": "buy",
-      "reflection": ""
-    },
-    "resolvedAt": "2026-01-06T08:40:52.495Z"
-  },
-  {
-    "id": "8e5623bb-3158-4331-9412-bf6409a5d01c",
-    "userId": "lordangel82",
-    "createdAt": "2026-01-02T05:46:25.326Z",
-    "categoryId": "invest",
-    "title": "삼전매수",
-    "notes": "더 오를것 같음",
-    "tags": [
-      "차트",
-      "뉴스"
-    ],
-    "confidence": 3,
-    "result": "negative",
-    "meta": {
-      "symbol": "삼성전자",
-      "action": "buy",
-      "reflection": ""
-    },
-    "resolvedAt": "2026-01-06T08:42:08.265Z"
+    "resolvedAt": "2026-01-09T04:54:08.360Z"
   }
 ]
