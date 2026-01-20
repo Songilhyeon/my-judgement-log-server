@@ -22,6 +22,12 @@ export type WeeklyReportSummary = {
       positiveRate: number;
     }[];
   };
+  byCategory: {
+    categoryId: string;
+    total: number;
+    completed: number;
+    positiveRate: number;
+  }[];
   topCategory: {
     categoryId: string;
     total: number;

@@ -83,6 +83,32 @@ function buildTopCategory(list: Decision[]) {
   return top;
 }
 
+function buildByCategory(list: Decision[]) {
+  const map = new Map<
+    string,
+    { total: number; completed: number; positive: number }
+  >();
+  for (const d of list) {
+    const key = d.categoryId ?? "unknown";
+    const entry = map.get(key) ?? { total: 0, completed: 0, positive: 0 };
+    entry.total += 1;
+    if (d.result !== "pending") {
+      entry.completed += 1;
+      if (d.result === "positive") entry.positive += 1;
+    }
+    map.set(key, entry);
+  }
+  return [...map.entries()]
+    .map(([categoryId, row]) => ({
+      categoryId,
+      total: row.total,
+      completed: row.completed,
+      positiveRate:
+        row.completed === 0 ? 0 : percent(row.positive, row.completed),
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
 function buildInsight(
   completed: Decision[],
   confidenceStats: WeeklyReportSummary["confidence"]["byLevel"]
@@ -100,13 +126,12 @@ function buildInsight(
 }
 
 function buildWeeklySummary(
-  list: Decision[],
+  completed: Decision[],
   weekStart: Date,
   weekEnd: Date
 ): WeeklyReportSummary {
-  const total = list.length;
-  const completed = list.filter((d) => d.result !== "pending");
-  const pending = total - completed.length;
+  const total = completed.length;
+  const pending = 0;
 
   const positive = completed.filter((d) => d.result === "positive").length;
   const negative = completed.filter((d) => d.result === "negative").length;
@@ -149,7 +174,8 @@ function buildWeeklySummary(
       average: avgConfidenceCompleted,
       byLevel: confidenceStats,
     },
-    topCategory: buildTopCategory(list),
+    byCategory: buildByCategory(completed),
+    topCategory: buildTopCategory(completed),
     insight: buildInsight(completed, confidenceStats),
   };
 }
@@ -211,7 +237,7 @@ export async function GET(req: Request) {
   const userId = getUserId(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
+      { error: "로그인이 필요합니다. (token 없음)" },
       { status: 401, headers }
     );
   }
@@ -227,22 +253,24 @@ export async function GET(req: Request) {
   const prevStartMs = prevWeekStart.getTime();
 
   const list = await decisionRepo.list({ userId });
-  const currentFiltered = list.filter((d) => {
-    const createdMs = isoToMs(d.createdAt);
-    return createdMs >= startMs && createdMs < endExclusive;
+  const currentCompleted = list.filter((d) => {
+    if (d.result === "pending") return false;
+    const resolvedMs = isoToMs(d.resolvedAt);
+    return resolvedMs >= startMs && resolvedMs < endExclusive;
   });
-  const previousFiltered = list.filter((d) => {
-    const createdMs = isoToMs(d.createdAt);
-    return createdMs >= prevStartMs && createdMs < prevEndExclusive;
+  const previousCompleted = list.filter((d) => {
+    if (d.result === "pending") return false;
+    const resolvedMs = isoToMs(d.resolvedAt);
+    return resolvedMs >= prevStartMs && resolvedMs < prevEndExclusive;
   });
 
   const currentSummary = buildWeeklySummary(
-    currentFiltered,
+    currentCompleted,
     weekStart,
     weekEnd
   );
   const previousSummary = buildWeeklySummary(
-    previousFiltered,
+    previousCompleted,
     prevWeekStart,
     prevWeekEnd
   );

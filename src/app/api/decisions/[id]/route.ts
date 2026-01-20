@@ -5,6 +5,7 @@ import type { Decision } from "@/types/decision";
 import { decisionRepo } from "@/lib/repo";
 import { getUserId } from "@/lib/auth";
 import { corsHeaders, corsOptions } from "@/lib/cors";
+import { z } from "zod";
 
 export async function OPTIONS() {
   return corsOptions();
@@ -17,7 +18,7 @@ export async function GET(
   const userId = getUserId(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
+      { error: "로그인이 필요합니다. (token 없음)" },
       { status: 401, headers: corsHeaders }
     );
   }
@@ -53,6 +54,27 @@ type PatchBody =
       confidence?: number;
       meta?: Decision["meta"] | null;
     };
+
+const resultSchema = z.object({
+  result: z.enum(["pending", "positive", "negative", "neutral"]),
+  confidence: z.number().int().min(1).max(5).optional(),
+  meta: z
+    .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+    .nullable()
+    .optional(),
+});
+
+const updateSchema = z.object({
+  categoryId: z.string().optional(),
+  title: z.string().optional(),
+  notes: z.string().nullable().optional(),
+  tags: z.array(z.string()).optional(),
+  confidence: z.number().int().min(1).max(5).optional(),
+  meta: z
+    .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+    .nullable()
+    .optional(),
+});
 
 function isValidResult(r: unknown): r is DecisionResult {
   return (
@@ -94,10 +116,9 @@ export async function PATCH(
 ) {
   const userId = getUserId(req);
 
-  console.log(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
+      { error: "로그인이 필요합니다. (token 없음)" },
       { status: 401, headers: corsHeaders }
     );
   }
@@ -106,25 +127,21 @@ export async function PATCH(
 
   let body: PatchBody;
   try {
-    body = (await req.json()) as PatchBody;
+    const raw = await req.json();
+    if ("result" in raw) {
+      body = resultSchema.parse(raw);
+    } else {
+      body = updateSchema.parse(raw);
+    }
   } catch {
     return NextResponse.json(
-      { error: "Invalid JSON body" },
+      { error: "입력값이 올바르지 않습니다." },
       { status: 400, headers: corsHeaders }
     );
   }
 
   // ✅ 모드1: 결과 입력/수정 (pending 포함)
   if ("result" in body) {
-    if (!isValidResult(body.result)) {
-      return NextResponse.json(
-        {
-          error: "result must be one of: pending, positive, negative, neutral",
-        },
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
     const prev = await decisionRepo.getById({ userId, id });
     if (!prev) {
       return NextResponse.json(
@@ -221,12 +238,12 @@ export async function DELETE(
   const userId = getUserId(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
+      { error: "로그인이 필요합니다. (token 없음)" },
       { status: 401, headers: corsHeaders }
     );
   }
 
-  const id = params.id;
+  const id = (await params).id;
 
   const ok = await decisionRepo.remove({ userId, id });
   if (!ok) {

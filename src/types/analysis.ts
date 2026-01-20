@@ -40,7 +40,24 @@ export type AnalysisSummaryResponse = {
     positiveRate: number;
   }[];
 
-  topTags: { tag: string; count: number }[];
+  topTags: {
+    tag: string;
+    count: number;
+    completed: number;
+    positiveRate: number;
+  }[];
+
+  byWeekday: {
+    weekday: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    total: number;
+    positiveRate: number;
+  }[];
+
+  byHour: {
+    hour: number;
+    total: number;
+    positiveRate: number;
+  }[];
 
   recentCompleted: {
     id: string;
@@ -51,5 +68,14 @@ export type AnalysisSummaryResponse = {
     resolvedAt: string;
     tags: string[];
     hasReflection: boolean;
+  }[];
+};
+
+export type WeeklySuccessTrendResponse = {
+  weeks: {
+    weekStart: string;
+    weekEnd: string;
+    total: number;
+    positiveRate: number;
   }[];
 };

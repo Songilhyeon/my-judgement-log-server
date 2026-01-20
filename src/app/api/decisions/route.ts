@@ -5,6 +5,7 @@ import type { DecisionResult } from "@/types/category";
 import { decisionRepo } from "@/lib/repo";
 import { getUserId } from "@/lib/auth";
 import { corsHeaders, corsOptions } from "@/lib/cors";
+import { z } from "zod";
 
 export async function OPTIONS() {
   return corsOptions();
@@ -12,10 +13,11 @@ export async function OPTIONS() {
 
 export async function GET(req: Request) {
   const userId = getUserId(req);
+
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
-      { status: 401, headers: corsHeaders }
+      { error: "로그인이 필요합니다. (token 없음)" },
+      { status: 401, headers: corsHeaders },
     );
   }
 
@@ -24,45 +26,34 @@ export async function GET(req: Request) {
   return NextResponse.json(list, { headers: corsHeaders });
 }
 
-type CreateDecisionBody = {
-  categoryId: string;
-  title: string;
-  notes?: string;
-  tags?: string[];
-  confidence?: number;
-  result?: DecisionResult;
-  meta?: Decision["meta"];
-};
+const createSchema = z.object({
+  categoryId: z.string().min(1),
+  title: z.string().min(1),
+  notes: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  confidence: z.number().int().min(1).max(5).optional(),
+  result: z.enum(["pending", "positive", "negative", "neutral"]).optional(),
+  meta: z
+    .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+    .optional(),
+});
 
 export async function POST(req: Request) {
   const userId = getUserId(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
-      { status: 401, headers: corsHeaders }
+      { error: "로그인이 필요합니다. (token 없음)" },
+      { status: 401, headers: corsHeaders },
     );
   }
 
-  let body: CreateDecisionBody;
+  let body: z.infer<typeof createSchema>;
   try {
-    body = (await req.json()) as CreateDecisionBody;
+    body = createSchema.parse(await req.json());
   } catch {
     return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400, headers: corsHeaders }
-    );
-  }
-
-  if (!body.categoryId || typeof body.categoryId !== "string") {
-    return NextResponse.json(
-      { error: "categoryId is required" },
-      { status: 400, headers: corsHeaders }
-    );
-  }
-  if (!body.title || typeof body.title !== "string" || !body.title.trim()) {
-    return NextResponse.json(
-      { error: "title is required" },
-      { status: 400, headers: corsHeaders }
+      { error: "입력값이 올바르지 않습니다." },
+      { status: 400, headers: corsHeaders },
     );
   }
 

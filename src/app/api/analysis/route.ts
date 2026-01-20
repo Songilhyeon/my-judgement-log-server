@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const userId = getUserId(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
+      { error: "로그인이 필요합니다. (token 없음)" },
       { status: 401, headers: corsHeaders }
     );
   }

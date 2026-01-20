@@ -1,4 +1,6 @@
 // lib/repo/index.ts
-import { fileDecisionRepo } from "./fileDecisionRepo";
+import { prismaDecisionRepo } from "./prismaDecisionRepo";
+export const decisionRepo = prismaDecisionRepo;
 
-export const decisionRepo = fileDecisionRepo; // ✅ 나중에 DB로 바꾸면 여기만 교체
+// import { fileDecisionRepo } from "./fileDecisionRepo";
+// export const decisionRepo = fileDecisionRepo; // ✅ 나중에 DB로 바꾸면 여기만 교체

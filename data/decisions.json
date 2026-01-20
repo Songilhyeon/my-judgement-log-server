@@ -1,60 +1,36 @@
 [
   {
-    "id": "1241b72c-f8d4-4c19-be74-5a7d02be2b81",
-    "createdAt": "2026-01-09T05:34:13.248Z",
-    "userId": "lordangel82",
+    "id": "34aa0a7a-3554-475d-9b98-ed71ac08b263",
+    "createdAt": "2026-01-19T06:30:11.311Z",
+    "userId": "cmkkoaesm0000uerhy1zqmjk9",
     "categoryId": "shopping",
-    "title": "냉풍기",
-    "notes": "블로그보고 구매",
+    "title": "냉풍기 구매",
+    "notes": "전문가 블로그 설명",
     "tags": [
-      "광고"
+      "블로그"
     ],
-    "confidence": 5,
-    "result": "negative",
-    "resolvedAt": "2026-01-09T05:34:24.692Z",
-    "meta": {
-      "reflection": "광고 믿지말자"
-    }
+    "confidence": 4,
+    "result": "pending"
   },
   {
-    "id": "1b1e5256-ca9d-4839-95f8-69b7ec1b8f6b",
-    "createdAt": "2026-01-09T05:26:03.380Z",
-    "userId": "lordangel82",
+    "id": "e113e1b4-c3a4-4a15-8097-6fd9e0bc2484",
+    "createdAt": "2026-01-19T04:45:49.522Z",
+    "userId": "cmkkoaesm0000uerhy1zqmjk9",
     "categoryId": "health",
-    "title": "12시 전에 잠을 자야 한다",
-    "notes": "어제 늦게 잤는데 오늘 너무 피곤하다",
+    "title": "아침운동",
+    "notes": "일찍일어나면 몸이 좋아질것 같음",
     "tags": [
       "습관"
     ],
-    "confidence": 5,
-    "result": "neutral",
-    "resolvedAt": "2026-01-09T05:26:59.891Z",
-    "meta": {
-      "reflection": "근거있다"
-    }
-  },
-  {
-    "id": "4d25418d-3d74-4b4d-bc34-05e3e349cd4c",
-    "createdAt": "2026-01-09T04:51:44.752Z",
-    "userId": "lordangel82",
-    "categoryId": "invest",
-    "title": "엘지전자 매수",
-    "notes": "상승장이어서",
-    "tags": [
-      "실적",
-      "뉴스"
-    ],
     "confidence": 4,
     "result": "positive",
+    "resolvedAt": "2026-01-19T05:26:48.425Z",
     "meta": {
-      "symbol": "엘지전자",
-      "action": "buy",
-      "marketCondition": "bull",
-      "entryPrice": 76000,
-      "exitPrice": 80000,
-      "returnRate": 5.3,
-      "reflection": "좋은승부였다2"
-    },
-    "resolvedAt": "2026-01-09T04:54:08.360Z"
+      "reflection": "내가 일찍 일어날수 있다",
+      "reflectionPrompt": "",
+      "reflectionWin": "일주일에 2번 일찍 일어남",
+      "reflectionImprove": "3번 일찍 일어나도록 노력하자",
+      "reflectionTags": "알람"
+    }
   }
 ]

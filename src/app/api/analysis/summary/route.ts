@@ -39,6 +39,9 @@ function isoToMs(iso?: string | null) {
   const t = Date.parse(iso);
   return Number.isFinite(t) ? t : 0;
 }
+function getResolvedMs(d: Decision) {
+  return isoToMs(d.resolvedAt ?? d.createdAt ?? null);
+}
 function isCompleted(d: Decision) {
   return d.result !== "pending";
 }
@@ -108,27 +111,101 @@ function groupByCategory(completed: Decision[]) {
     .sort((a, b) => b.total - a.total);
 }
 
-function buildTopTags(list: Decision[]) {
-  const map = new Map<string, number>();
+function buildTopTags(list: Decision[], completed: Decision[]) {
+  const countMap = new Map<string, number>();
   for (const d of list) {
     const tags = Array.isArray(d.tags) ? d.tags : [];
     for (const raw of tags) {
       const tag = String(raw ?? "").trim();
       if (!tag) continue;
-      map.set(tag, (map.get(tag) ?? 0) + 1);
+      countMap.set(tag, (countMap.get(tag) ?? 0) + 1);
     }
   }
-  return Array.from(map.entries())
-    .map(([tag, count]) => ({ tag, count }))
+
+  const completedMap = new Map<
+    string,
+    { completed: number; positive: number }
+  >();
+  for (const d of completed) {
+    const tags = Array.isArray(d.tags) ? d.tags : [];
+    for (const raw of tags) {
+      const tag = String(raw ?? "").trim();
+      if (!tag) continue;
+      const entry = completedMap.get(tag) ?? { completed: 0, positive: 0 };
+      entry.completed += 1;
+      if (d.result === "positive") entry.positive += 1;
+      completedMap.set(tag, entry);
+    }
+  }
+
+  return Array.from(countMap.entries())
+    .map(([tag, count]) => {
+      const stats = completedMap.get(tag) ?? { completed: 0, positive: 0 };
+      return {
+        tag,
+        count,
+        completed: stats.completed,
+        positiveRate:
+          stats.completed === 0 ? 0 : percent(stats.positive, stats.completed),
+      };
+    })
     .sort((a, b) => b.count - a.count)
     .slice(0, 20);
+}
+
+function buildByWeekday(completed: Decision[]) {
+  const map = new Map<number, { total: number; positive: number }>();
+  for (let i = 0; i < 7; i += 1) {
+    map.set(i, { total: 0, positive: 0 });
+  }
+
+  for (const d of completed) {
+    const ms = getResolvedMs(d);
+    if (!ms) continue;
+    const date = new Date(ms);
+    const weekday = date.getUTCDay();
+    const entry = map.get(weekday);
+    if (!entry) continue;
+    entry.total += 1;
+    if (d.result === "positive") entry.positive += 1;
+  }
+
+  return [...map.entries()].map(([weekday, row]) => ({
+    weekday: weekday as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+    total: row.total,
+    positiveRate: row.total === 0 ? 0 : percent(row.positive, row.total),
+  }));
+}
+
+function buildByHour(completed: Decision[]) {
+  const map = new Map<number, { total: number; positive: number }>();
+  for (let i = 0; i < 24; i += 1) {
+    map.set(i, { total: 0, positive: 0 });
+  }
+
+  for (const d of completed) {
+    const ms = getResolvedMs(d);
+    if (!ms) continue;
+    const date = new Date(ms);
+    const hour = date.getUTCHours();
+    const entry = map.get(hour);
+    if (!entry) continue;
+    entry.total += 1;
+    if (d.result === "positive") entry.positive += 1;
+  }
+
+  return [...map.entries()].map(([hour, row]) => ({
+    hour,
+    total: row.total,
+    positiveRate: row.total === 0 ? 0 : percent(row.positive, row.total),
+  }));
 }
 
 export async function GET(req: Request) {
   const userId = getUserId(req);
   if (!userId) {
     return NextResponse.json(
-      { error: "로그인이 필요합니다. (x-user-id 헤더 없음)" },
+      { error: "로그인이 필요합니다. (token 없음)" },
       { status: 401, headers }
     );
   }
@@ -197,7 +274,13 @@ export async function GET(req: Request) {
   const byCategory: AnalysisSummaryResponse["byCategory"] =
     groupByCategory(completed);
 
-  const topTags: AnalysisSummaryResponse["topTags"] = buildTopTags(filtered);
+  const topTags: AnalysisSummaryResponse["topTags"] = buildTopTags(
+    filtered,
+    completed
+  );
+  const byWeekday: AnalysisSummaryResponse["byWeekday"] =
+    buildByWeekday(completed);
+  const byHour: AnalysisSummaryResponse["byHour"] = buildByHour(completed);
 
   const recentCompleted: AnalysisSummaryResponse["recentCompleted"] = completed
     .filter((d) => isResolvedResult(d.result))
@@ -231,6 +314,8 @@ export async function GET(req: Request) {
     byAction,
     confidenceStats,
     topTags,
+    byWeekday,
+    byHour,
     recentCompleted,
   };
 

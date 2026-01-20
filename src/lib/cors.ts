@@ -3,7 +3,7 @@
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,PATCH,DELETE,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, x-user-id",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
 // ✅ 2) Cache 방지 전용 (이 라우트만 필요하면 여기서만 추가)
